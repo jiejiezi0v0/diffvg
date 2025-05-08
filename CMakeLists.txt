@@ -15,14 +15,18 @@ add_subdirectory(pybind11)
 option(DIFFVG_CUDA "Build diffvg with GPU code path?" ON)
 
 if(DIFFVG_CUDA)
-    message(STATUS "Build with CUDA support")
-    find_package(CUDA 10 REQUIRED)
-    set(CMAKE_CUDA_STANDARD 11)
-    if(NOT WIN32)
-        # Hack: for some reason the line above doesn't work on some Linux systems.
-        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11")
-        #set(CUDA_NVCC_FLAGS_DEBUG "-g -G")
-    endif()
+    find_package(CUDA REQUIRED)
+
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
+    set(CUDA_HOST_COMPILER /usr/bin/gcc-10)
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -ccbin=${CUDA_HOST_COMPILER}")
+
+    message(STATUS "CUDA NVCC Flags: ${CUDA_NVCC_FLAGS}")
+else()
+    message(STATUS "Build without CUDA support")
+    find_package(Thrust REQUIRED)
 else()
     message(STATUS "Build without CUDA support")
     find_package(Thrust REQUIRED)
